@@ -43,7 +43,7 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    sub_comment = models.ForeignKey('self', on_delete=models.CASCADE, blank=True )
+    sub_comment = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True )
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments')
     class Meta:
         verbose_name = 'Комментарий'
@@ -51,6 +51,35 @@ class Comment(models.Model):
     
     def __str__(self) -> str:
         return f'Комментарий от {self.user.username}'
+
+
+class Like(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='likes')
+
+    class Meta:
+        verbose_name = 'Лайк'
+        verbose_name_plural = 'Лайки'
+
+    def __str__(self):
+        return f'Liked by {self.user.username}'
+    
+
+class Rating(models.Model):
+    RATES = (
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
+    rate = models.PositiveSmallIntegerField(choices=RATES)
+    # rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+
+
 """
 1. Написать модель(models.py)
 2. Добавить в админку (admin.py)
