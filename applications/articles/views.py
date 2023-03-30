@@ -4,7 +4,7 @@ from rest_framework import filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Article, Tag, Comment
-from .serializers import ArticleListSerializer, ArticleSerializer, TagSerializer, CommentSerializer
+from .serializers import ArticleListSerializer, ArticleSerializer, TagSerializer, CommentSerializer, RatingSerializer
 from .permissions import IsAuthor
 
 '''
@@ -42,6 +42,8 @@ class ArticleViewSet(ModelViewSet):
             return ArticleListSerializer
         elif self.action == 'comment':
             return CommentSerializer
+        elif self.action == 'rate_article':
+            return RatingSerializer
         return super().get_serializer_class()
     
     @action(methods=['POST','DELETE'], detail=True)
@@ -54,7 +56,13 @@ class ArticleViewSet(ModelViewSet):
             serializer.save(user=request.user, article=article)
             return Response(serializer.data)
         
-
+    @action(methods=['POST'], detail=True, url_path='rate')
+    def rate_article(self, request, pk=None):
+        article = self.get_object()
+        serializer = RatingSerializer(data=request.data, context={'request': request,'article':article})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(article=article)
+        return Response(serializer.data)
 
 """ 
 actions - действия пользователя:
@@ -85,3 +93,5 @@ class TagViewSet(ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     # pagination_class = 
+
+

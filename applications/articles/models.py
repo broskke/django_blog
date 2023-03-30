@@ -73,11 +73,19 @@ class Rating(models.Model):
         (4, '4'),
         (5, '5'),
     )
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings')
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='ratings')
     rate = models.PositiveSmallIntegerField(choices=RATES)
     # rate = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    def __str__(self):
+        return str(self.rate)
+    
+    class Meta:
+        verbose_name = 'Рейтинг'
+        verbose_name_plural = 'Рейтинги'
+        unique_together = ['user','article']
+
+    
 
 
 """
